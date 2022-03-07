@@ -1,0 +1,182 @@
+---
+title: "Presentation about Datastream data in WRDS"
+author: "Manolis Chatzikonstantinou"
+institute: "GUQ"
+date: "2022/03/07 (updated: `r Sys.Date()`)"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+tr_ds_comds<-wrdsmc::connect_to_wrds_lib(wrds_lib = "tr_ds_comds")
+```
+
+# Thomson/Refinitiv
+
+> Refinitiv, an LSEG (London Stock Exchange Group) business, is one of the world’s largest providers of financial markets data and infrastructure. Refinitiv is powering participants across the global financial marketplace by providing information, insights, and technology that enable customers to execute critical investing, trading and risk decisions with confidence. By combining best-in-class data and expertise, we connect people with choice and opportunity – driving performance, innovation and growth for our customers and partners.
+
+- 13-F Filings:  Access Institutional Common Stock Holdings and Transactions, as reported on Form 13F filed with the SEC by institutional managers with $100 million or more in Assets Under Management.
+
+- Datastream: Analyze global macroeconomic data to get the complete picture on virtually any macro environment, better understand economic cycles to uncover trends and forecast market conditions. 
+
+- Dealscan: The world’s pre-eminent source for extensive and reliable information on the global syndicated bank loan market, this robust database contains detailed terms and conditions on over 240,000 loan transactions.
+ 
+
+# Thomson/Refinitiv
+
+> Refinitiv, an LSEG (London Stock Exchange Group) business, is one of the world’s largest providers of financial markets data and infrastructure. Refinitiv is powering participants across the global financial marketplace by providing information, insights, and technology that enable customers to execute critical investing, trading and risk decisions with confidence. By combining best-in-class data and expertise, we connect people with choice and opportunity – driving performance, innovation and growth for our customers and partners.
+
+- I/B/E/S Earning Estimates:   Best of Breed Global Database on Earnings Estimates covering over 5800+ US Companies, 12,400 International Companies, unrivaled history dating back to 1976.
+
+- I/B/E/S Guidance provides everything surrounding the time guidance is issued – including timestamp, guidance value, and what the mean was at that moment.  Allows you to directly compare analyst and management expectations on company performance.
+
+- I/B/E/S Global Aggregates provide earnings forecasts plus related data for 87 countries and major international indices — a unique source of data for use in many global investment applications, including global asset allocation, cross-border valuation, sector and industry aggregation and derivatives.
+
+- I/B/E/S Key Performance Indicators (KPI) allow researchers to effectively evaluate a business and how likely it is to perform in the medium and long terms.
+
+- Insider Filings: Capture all U.S. insider activity as reported on Forms 3, 4, 5, and 144 in line-by-line detail. A unique cleansing process is used by Refinitiv that adds value by making systematic interpretations on the accuracy of as-reported data and inserts “cleansed” fields for comparison.
+
+- Lipper TASS Database: The most reliable source of timely, high quality hedge fund data for over 20 years.  The Tass Lipper Hedge Fund Database offers quantitative performance data on over 7,500 actively reporting hedge funds and funds of hedge funds, plus over 11,000 graveyard funds.
+
+- Mutual Funds Data: Database provides security holding information for all registered mutual funds that report their holdings with the SEC, plus 3,000 global funds. Reported securities include all NYSE/AMEX/NASDAQ, Toronto, and Montreal common stocks.
+
+- SDC M&A Tracks changes in economic ownership at ultimate parent level in going business concerns 150+ data elements, including target and acquirer profile information, deal terms, financial and legal advisor, stock premia, synopsis history, deal status, and more. Coverage from 1970.
+
+-  SDC New Issues Access issues of global equity and equity-related securities, including offerings of common stock (includes IPOs, secondary offerings, and Rule 144a stock offerings), convertible debt, and convertible preferred stock.
+
+-  Worldscope:  Coverage on over 78,000 companies in 119 countries (full standardized coverage for 30 markets.)
+
+---
+
+# Datastream data
+
+| Library: | tfn |
+| :--- | :--- |
+| Data Range: | Date_- Market date in YYYYMMDD format. Date on which the commodity index time series value is available: 1951-01-02 - 2030-05-10 |
+| Last Updated On: | 2022-03-02 |
+| Update Frequency: | Monthly |
+list_tables(tfn)
+
+---
+
+
+# Raw Datastream data: Equity data
+
+#wrds_ds2dsf
+
+---
+
+# Raw Datastream data: Commodities data
+
+1. tr_ds_comds
+
+```{r}
+tbl(tr_ds_comds,"wrds_cmdy_data")
+```
+Variable description: 
+comcode date_      open_ close_  high   low volume - self explanatory
+dsp	double	53	DSP - Datastream Mid-Price. This is the calculated mid value of either Bid/Ask or High/Low
+LicFlag - Bitmap license flag. This indicates the license to which the record belongs-> not relevant
+iv inventory
+
+number of differnet mnemonic : only 9300
+regions: tbl(tr_ds_comds,"dscmreg")
+close is the most common one, we start here for exchange rate pass through, or correlation with isocur
+---
+
+# Commodity data
+
+| Variable  | Definition |
+| --  | -- |
+| iv  |inventory |
+| mp  | Market Price |
+| nt  | Number of Trades |
+| of  | Official Price |
+| pa  | Price Ask |
+| pb  | Price Bid |
+| pi  | Price Index |
+| ps  | Settlement Price |
+| tr  | Total Return |
+| tv  | Turnover by Volume |
+| uf  | UnOfficial Price |
+| volume | Unadjusted Price |
+| up | Volume - Trade volume for the given date |
+| va | Value |
+| vm | Excess Return |
+
+
+---
+
+# Commodity Information
+
+```{r}
+tbl(tr_ds_comds,"wrds_cmdy_info") 
+```
+
+tbl(tr_ds_comds,"wrds_cmdy_info")+patenting+chemical info
+price of commodities for Nielsen through here!
+exchange rate pass through + a way to compare unit prices
+
+data producer code: tbl(tr_ds_comds,"dscmcode") %>% dplyr::filter(code == 9070)
+
+---
+
+# Institutional Ownership:13f data+ Insider + Boardex
+
+https://wrds-www.wharton.upenn.edu/pages/support/applications/institutional-ownership-research/
+
+Institutional (13f) Holdings - S34
+  
+The primary source for the institutional holdings data is the 13f form that investment companies and professional money managers are required to file with the SEC on a quarterly basis.
+
+Data error due to double counting that results from multiple filing of the same security holdings by institutions that share investment discretion over some parts of their assets under management. That's why you found similar cases in Yahoo. Note that while Thomson makes every effort to eliminate duplicate shareholdings in cases of shared investment discretion among multiple institutional managers who file 13f, there might be some cases with fractional institutional ownership > 1 (check Gompers Ishii and Metrick, QJE, 2001, "Institutional Investors and Equity Prices").
+
+ncorrect shares outstanding in Thomson. We recommend that you use CRSP shares outstanding for this purpose. When summing over institutional holdings, you need to make sure first that all shares are adjusted for splits and special distributions. To do this, you need to use the fdate (Thomson file date) and CRSP cumulative adjustment factors. Also, we recommend that you use shares outstanding figures from CRSP data (make sure you adjust them as well). After you do this, then you will be able to sum all shareholding for each report date (rdate), and divide this figure by the total shares outstanding. In order to properly adjust for splits and special distributions, you need to merge Thomson data with CRSP cumulative adjusted factors (from monthly stock files) using the fdate in thomson (which is the file date) and date variable in CRSP. Please read the footnote in Thomson documentation for more information about fdate vs. rdate.
+
+
+https://wrds-www.wharton.upenn.edu/pages/support/applications/institutional-ownership-research/introduction-thomson-reuters-13f-tr-13f-database-and-its-classification-institutional-investors/
+--- 
+
+# Common Ownership
+
+
+| Variable Name | Type | Description |
+| :--- | :--- | :--- |
+| rdate | date | Report Date (rdate) |
+| cusip | string | Cusip (cusip) |
+| stkname | string | Stock Name (stkname) |
+| ticker | string | Ticker Symbol (ticker) |
+| exchcd | string | Exchange Code (exchcd) |
+| stkcd | string | Stock Class Code (stkcd) |
+| stkcdesc | string | Stock Class Description (stkcdesc) |
+| pre | double | End of Qtr Share Price (prc) |
+| shrout | double | End of Qtr Shares Outstanding in 1000 s (shrout) |
+| top5instown | string | Largest 5 Institutional Ownership Size (top5instown) |
+| top10instown | string | Largest 10 Institutional Ownership Size (top10instown) |
+| numinstblockowners | string | Number of > 5% Institutional Block Ownerships (numinstblockowners) |
+| instblockown | string | Total Ownership by Institutional BlockHolders (instblockown) |
+| numinstowners | string | Number of 13-F Institutional Owners (numinstowners) |
+| maxinstown | string | Largest Institutional Ownership Size (maxinstown) |
+| instown_perc | string | Total Inst. Ownership, Percent of Shares Outstanding (instown_perc) |
+| instown_hhi | string | Total Institutional Ownership (instown) |
+
+check how it relates with us specific sales data
+
+---
+
+
+# Secondary  data
+
+Mutual Fund Holdings - (S12)
+  
+The S12 mutual fund holdings database covers almost all historical domestic mutual funds, with the addition of about 3,000 global funds that hold a fraction of assets in stocks traded in U.S. exchanges as well Canadian stock markets.
+
+
+Lipper Hedge Fund Database - Product Performance and Details

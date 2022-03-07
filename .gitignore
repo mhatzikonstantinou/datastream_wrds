@@ -1,0 +1,6 @@
+libs/*
+*.csv
+*.zip
+*.pdf
+*.html
+.Rproj.user
